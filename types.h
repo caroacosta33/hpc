@@ -36,4 +36,10 @@ struct Station {
     double lng;
 };
 
+struct Solution {
+    std::vector<TruckRoute> routes;
+    std::vector<std::string> unvisitedStops;
+    double evaluationValue;
+};
+
 #endif
