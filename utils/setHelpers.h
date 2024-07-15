@@ -1,3 +1,6 @@
+#ifndef SETHELPERS
+#define SETHELPERS
+
 #include <set>
 #include <iterator>
 
@@ -10,3 +13,5 @@ double getNthValue(const std::set<double>& mySet, int n) {
     std::advance(it, n);
     return *it;
 }
+
+#endif

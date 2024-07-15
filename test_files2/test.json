@@ -1,0 +1,75 @@
+{
+    "RouteID_15baae2d-bf07-4967-956a-173d4036613f": 
+    {
+        "station_code": "DCH4",
+        "date_YYYY_MM_DD": "2018-08-11",
+        "departure_time_utc": "15:12:44",
+        "executor_capacity_cm3": 4247527,
+        "stops": 
+        {
+            "AH": 
+            {
+                "lat": 42.129085,
+                "lng": -88.027485,
+                "type": "Dropoff",
+                "zone_id": "D-8.3E"
+            },
+            "AK": 
+            {
+                "lat": 42.133454,
+                "lng": -88.043144,
+                "type": "Dropoff",
+                "zone_id": "D-8.2H"
+            },
+            "AN": 
+            {
+                "lat": 42.129422,
+                "lng": -88.037895,
+                "type": "Dropoff",
+                "zone_id": "D-8.2H"
+            },
+            "AU": 
+            {
+                "lat": 42.107882,
+                "lng": -88.035445,
+                "type": "Dropoff",
+                "zone_id": "D-8.1C"
+            },
+            "AV": 
+            {
+                "lat": 42.138752,
+                "lng": -88.041745,
+                "type": "Dropoff",
+                "zone_id": "D-7.1J"
+            },
+            "AY": 
+            {
+                "lat": 42.123379,
+                "lng": -88.032213,
+                "type": "Dropoff",
+                "zone_id": ""
+            },
+            "BA": 
+            {
+                "lat": 42.130132,
+                "lng": -88.026442,
+                "type": "Dropoff",
+                "zone_id": "D-8.3E"
+            },
+            "BC": 
+            {
+                "lat": 42.107161,
+                "lng": -88.032347,
+                "type": "Dropoff",
+                "zone_id": "D-8.1B"
+            },
+            "HJ": 
+            {
+                "lat": 42.254346,
+                "lng": -87.985697,
+                "type": "Station",
+                "zone_id": ""
+            }
+        }
+    }
+}

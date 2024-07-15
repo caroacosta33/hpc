@@ -12,7 +12,7 @@ using json = nlohmann::json;
 void addPackageData(std::unordered_map<std::string, Stop>& stopsHash) {
     // Abrir el archivo .json
     //std::ifstream file("almrrc2021-data-training/model_apply_inputs/new_package_data.json");
-    std::ifstream file("test_files/test2.json");
+    std::ifstream file("test_files2/test2.json");
     // Comprobar si el archivo se abrió correctamente
     if (!file.is_open()) {
         std::cerr << "No se pudo abrir el archivo!" << std::endl;
@@ -59,7 +59,7 @@ void getStopsForDateAndTruckCapacities(
     ) {
     // Abrir el archivo .json
     //std::ifstream file("almrrc2021-data-training/model_apply_inputs/new_route_data.json");
-    std::ifstream file("test_files/test.json");
+    std::ifstream file("test_files2/test.json");
     // Comprobar si el archivo se abrió correctamente
     if (!file.is_open()) {
         std::cerr << "No se pudo abrir el archivo!" << std::endl;
@@ -105,6 +105,14 @@ void getStopsForDateAndTruckCapacities(
         std::cerr << "Error al acceder a los datos del JSON: " << e.what() << std::endl;
         throw;
     }
+}
+
+double getVolumeFromStop(Stop stop) {
+    double vol = 0;
+    for (const auto& package : stop.packages) {
+        vol += package.depth_cm * package.height_cm * package.width_cm;
+    }
+    return vol;
 }
 
 #endif

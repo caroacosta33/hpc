@@ -36,4 +36,28 @@ void printTruck(Truck truck) {
     std::cout << "--------" << std::endl;
 }
 
+void printTruckRoute(TruckRoute route) {
+    std::cout << "Truck ID: " << route.truckId << "\n"
+              << "Route: ";
+    for (const auto& stopId : route.route) {
+        std::cout << stopId << " ";
+    }
+    std::cout << "\nUsed Capacity: " << route.usedCapacity << "\n"
+              << "Distance Traveled: " << route.distanceTraveled << "\n";
+}
+
+void printSolution(Solution solution) {
+    std::cout << "Solution Evaluation Value: " << solution.evaluationValue << "\n"
+              << "Routes:\n";
+    for (const auto& route : solution.routes) {
+        printTruckRoute(route);
+        std::cout << "\n";
+    }
+    std::cout << "Unvisited Stops:\n";
+    for (const auto& stopId : solution.unvisitedStops) {
+        std::cout << "  " << stopId << "\n";
+    }
+    std::cout << "--------" << std::endl;
+}
+
 #endif

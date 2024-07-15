@@ -10,6 +10,18 @@
 #include "./utils/prints.h"
 #include "./utils/setHelpers.h"
 #include "./utils/getData.h"
+#include "./utils/vectorHelpers.h"
+#include "./utils/distanceHelpers.h"
+
+
+// Funcion de evaluacion
+double evaluateSolution(Solution solution) {
+    double totalDistanceTraveled = 0;
+    for (const auto& truckRoutes : solution.routes) {
+        totalDistanceTraveled += truckRoutes.distanceTraveled;
+    }
+    return totalDistanceTraveled;
+}
 
 // Busqueda de las soluciones dada un nodo
 void searchTree() {
@@ -25,12 +37,61 @@ std::vector<Solution> bfs_step(
     std::vector<Solution> solutions;
     for (const auto& pair : truckHash) {
         Truck truck = pair.second;
-        // if (solution.routes == )
-        // si el camion tiene una ruta no vacia
-            // creo un arreglo de soluciones, en donde a cada una le agrego una de las paradas sin visitar a ese camion
-            // fijarse que el camion tenga capacidad suficiente para los paquetes de esa parada
-        // si no
-            // creo un arreglo de soluciones, en donde a cada una le agrego una de las estaciones
+        std::optional<TruckRoute> truckRoute = getTruckRouteById(solution.routes, truck.id);
+        if (truckRoute) {
+            // Creo un arreglo de soluciones, en donde a cada una le agrego una de las paradas sin visitar a ese camion
+            // Fijarse que el camion tenga capacidad suficiente para los paquetes de esa parada
+            for (const auto& stopId : solution.unvisitedStops){
+                Stop actualStop = stopsHash[stopId];
+                double pkgVolume = getVolumeFromStop(actualStop);
+                // Copia la solucion recibida por parametro
+                Solution newSolution = solution;
+                TruckRoute& editTruckRoute = refTruckRouteById(newSolution.routes, truck.id);
+                if (truck.capacity >= pkgVolume + editTruckRoute.usedCapacity) {
+                    removeString(newSolution.unvisitedStops, stopId);
+                    std::string prevStopId = editTruckRoute.route.back();
+                    double prevStopLat;
+                    double prevStopLng;
+                    if (editTruckRoute.route.size() == 1) { // Solo visitó una estacion
+                        prevStopLat = stationHash[prevStopId].lat;
+                        prevStopLng = stationHash[prevStopId].lng;
+                    } else {
+                        prevStopLat = stopsHash[prevStopId].lat;
+                        prevStopLng = stopsHash[prevStopId].lng;
+                    }
+                    double distanceBetweenStops = getDistanceFromLatLonInKm(
+                        prevStopLat,
+                        prevStopLng,
+                        actualStop.lat,
+                        actualStop.lng
+                    );
+
+                    editTruckRoute.usedCapacity += pkgVolume;
+                    editTruckRoute.distanceTraveled += distanceBetweenStops;
+                    editTruckRoute.route.push_back(stopId);
+                    newSolution.evaluationValue = evaluateSolution(newSolution);
+
+                    solutions.push_back(newSolution);
+                }
+            }
+        } else {
+            // Creo un arreglo de soluciones, en donde a cada una le agrego una de las estaciones
+            for (const auto& stationPair : stationHash){
+                // Copia la solucion recibida por parametro
+                Solution newSolution = solution;
+
+                TruckRoute newRoute;
+                newRoute.truckId = truck.id;
+                newRoute.route = {
+                    stationPair.second.id,
+                };
+                newRoute.usedCapacity = 0;
+                newRoute.distanceTraveled = 0;
+
+                newSolution.routes.push_back(newRoute);
+                solutions.push_back(newSolution);
+            }
+        }
     }
     return solutions;
 }
@@ -75,9 +136,9 @@ void searchSolutions(
 int main() {
     try {
         // PARAMETROS
-        int truckQty = 10; // Numero de camiones
+        int truckQty = 2; // Numero de camiones
         std::string selectedDate = "2018-08-11";
-        int maxLevel = 10; // Nivel hasta el que se expande con BFS
+        int maxLevel = 3; // Nivel hasta el que se expande con BFS
 
         // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
         std::unordered_map<std::string, Stop> stopsHash;
@@ -107,25 +168,28 @@ int main() {
 
         // BFS HASTA NIVEL 
         std::vector<Solution> solutions = bfs(stopsHash, stationHash, truckHash, allStops, maxLevel);
+        for (const auto& sol : solutions) {
+            printSolution(sol);
+        }
 
         // DFS PARALELIZABLE
 
         //IMPRESIONES
         // Imprimir los elementos del vector
-        for (const auto& pair : stopsHash) {
-            printStop(pair.second);
-        }
+        // for (const auto& pair : stopsHash) {
+        //     printStop(pair.second);
+        // }
 
         // Imprimir el conjunto de capacidades de camiones
-        std::cout << "Truck Capacities: " << std::endl;
-        for (const auto& value : truckCapacities) {
-            std::cout << value << std::endl;
-        }
+        // std::cout << "Truck Capacities: " << std::endl;
+        // for (const auto& value : truckCapacities) {
+        //     std::cout << value << std::endl;
+        // }
 
-        std::cout << "Trucks: " << std::endl;
-        for (const auto& pair : truckHash) {
-            printTruck(pair.second);
-        }
+        // std::cout << "Trucks: " << std::endl;
+        // for (const auto& pair : truckHash) {
+        //     printTruck(pair.second);
+        // }
 
     } catch (json::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

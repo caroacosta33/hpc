@@ -36,6 +36,7 @@ struct Station {
     double lng;
 };
 
+// Esta solucion se refiere a una posible solucion
 struct Solution {
     std::vector<TruckRoute> routes;
     std::vector<std::string> unvisitedStops;

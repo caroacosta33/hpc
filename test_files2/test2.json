@@ -1,0 +1,270 @@
+{
+    "RouteID_15baae2d-bf07-4967-956a-173d4036613f": 
+    {
+        "AH": 
+        {
+            "PackageID_07017709-2ddd-4c6a-8b7e-ebde70a4f0fa": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 78,
+                "dimensions": 
+                {
+                    "depth_cm": 36.1,
+                    "height_cm": 7.1,
+                    "width_cm": 20.8
+                }
+            }
+        },
+        "AK": 
+        {
+            "PackageID_30d78e0b-3dfd-4123-a392-a187ee55c789": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 157,
+                "dimensions": 
+                {
+                    "depth_cm": 28.2,
+                    "height_cm": 4.8,
+                    "width_cm": 25.7
+                }
+            }
+        },
+        "AN": 
+        {
+            "PackageID_31472e01-c4ac-4281-b9ae-281a152f0d53": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 60,
+                "dimensions": 
+                {
+                    "depth_cm": 27.4,
+                    "height_cm": 5.6,
+                    "width_cm": 24.9
+                }
+            }
+        },
+        "AU": 
+        {
+            "PackageID_180d6ed8-e08c-4a2a-972c-b0d6f1bd68ed": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 33,
+                "dimensions": 
+                {
+                    "depth_cm": 30.5,
+                    "height_cm": 2.5,
+                    "width_cm": 27.9
+                }
+            }
+        },
+        "AV": 
+        {
+            "PackageID_9b96689a-99ef-4fc3-9281-ad7442c746ec": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 47,
+                "dimensions": 
+                {
+                    "depth_cm": 30.5,
+                    "height_cm": 3.8,
+                    "width_cm": 22.9
+                }
+            },
+            "PackageID_198ae96b-9cd2-479b-ba13-ef716e4774eb": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 47,
+                "dimensions": 
+                {
+                    "depth_cm": 39.1,
+                    "height_cm": 4.1,
+                    "width_cm": 23.9
+                }
+            }
+        },
+        "AY": 
+        {
+            "PackageID_7951fc55-6486-4636-9549-14f87757e75a": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 69.7,
+                "dimensions": 
+                {
+                    "depth_cm": 36.8,
+                    "height_cm": 17.8,
+                    "width_cm": 20.3
+                }
+            },
+            "PackageID_a4a961c6-6e08-4f3a-813b-f71ea0e2305e": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 69.7,
+                "dimensions": 
+                {
+                    "depth_cm": 25.4,
+                    "height_cm": 12.7,
+                    "width_cm": 17.8
+                }
+            },
+            "PackageID_ac6f8c55-db42-4ff4-9f1a-12ae76be44c5": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 69.7,
+                "dimensions": 
+                {
+                    "depth_cm": 24.1,
+                    "height_cm": 1.5,
+                    "width_cm": 16.5
+                }
+            }
+        },
+        "BA": 
+        {
+            "PackageID_6b0cf724-4d50-4518-8ae3-c376068f7389": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 64,
+                "dimensions": 
+                {
+                    "depth_cm": 25.4,
+                    "height_cm": 12.7,
+                    "width_cm": 17.8
+                }
+            }
+        },
+        "BC": 
+        {
+            "PackageID_a4a989f5-e790-474a-8a06-5cebdd3688a9": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 14,
+                    "height_cm": 5.3,
+                    "width_cm": 11.9
+                }
+            },
+            "PackageID_870fd2d8-0f44-497b-a019-e0ea5865c0c2": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 30.5,
+                    "height_cm": 4.8,
+                    "width_cm": 22.9
+                }
+            },
+            "PackageID_bfea0a83-8b90-4f49-a392-e43c0963e74f": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 30.5,
+                    "height_cm": 5.1,
+                    "width_cm": 17.8
+                }
+            },
+            "PackageID_c7e2e9f5-706d-4944-b748-53a71d48ed4c": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 48.3,
+                    "height_cm": 15.2,
+                    "width_cm": 33
+                }
+            },
+            "PackageID_cbf8962b-9fcf-48cc-b90d-92f3e950726f": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 40.6,
+                    "height_cm": 12.7,
+                    "width_cm": 30.5
+                }
+            },
+            "PackageID_31c195b0-6415-4906-a961-0d3d277027e5": 
+            {
+                "time_window": 
+                {
+                    "start_time_utc": "",
+                    "end_time_utc": ""
+                },
+                "planned_service_time_seconds": 37.7,
+                "dimensions": 
+                {
+                    "depth_cm": 48.3,
+                    "height_cm": 15.2,
+                    "width_cm": 33
+                }
+            }
+        },
+        "HJ": {}
+    }
+}
