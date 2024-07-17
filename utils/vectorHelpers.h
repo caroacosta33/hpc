@@ -18,15 +18,6 @@ std::optional<TruckRoute> getTruckRouteById(const std::vector<TruckRoute>& vec, 
 }
 
 // Precond: truckId esta en vec
-// void refTruckRouteById(const std::vector<TruckRoute>& vec, const std::string& truckId, TruckRoute& truckRoute) {
-//     for (const auto& truckRouteIt : vec) {
-//         if (truckRouteIt.truckId == truckId) {
-//             truckRoute = truckRouteIt;
-//             return;
-//         }
-//     }
-// }
-
 TruckRoute& refTruckRouteById(std::vector<TruckRoute>& vec, const std::string& truckId) {
     for (auto& route : vec) {
         if (route.truckId == truckId) {

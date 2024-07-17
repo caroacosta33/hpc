@@ -5,6 +5,7 @@
 #include <set>
 #include <cstdlib> 
 #include <iterator>
+#include <limits>
 
 #include "./types.h"
 #include "./utils/prints.h"
@@ -23,9 +24,34 @@ double evaluateSolution(Solution solution) {
     return totalDistanceTraveled;
 }
 
-// Busqueda de las soluciones dada un nodo
-void searchTree() {
+// precond: la truckRoute no esta vaci, tiene al menos una esatcion
+void insertStopInTruckRoute(
+    std::unordered_map<std::string, Stop> stopsHash,
+    std::unordered_map<std::string, Station> stationHash,
+    Stop stop,
+    TruckRoute& truckRoute
+){
+    double pkgVolume = getVolumeFromStop(stop);
+    std::string prevStopId = truckRoute.route.back();
+    double prevStopLat;
+    double prevStopLng;
+    if (truckRoute.route.size() == 1) { // Solo visitó una estacion
+        prevStopLat = stationHash[prevStopId].lat;
+        prevStopLng = stationHash[prevStopId].lng;
+    } else {
+        prevStopLat = stopsHash[prevStopId].lat;
+        prevStopLng = stopsHash[prevStopId].lng;
+    }
+    double distanceBetweenStops = getDistanceFromLatLonInKm(
+        prevStopLat,
+        prevStopLng,
+        stop.lat,
+        stop.lng
+    );
 
+    truckRoute.usedCapacity += pkgVolume;
+    truckRoute.distanceTraveled += distanceBetweenStops;
+    truckRoute.route.push_back(stop.id);
 }
 
 std::vector<Solution> bfs_step(
@@ -49,28 +75,8 @@ std::vector<Solution> bfs_step(
                 TruckRoute& editTruckRoute = refTruckRouteById(newSolution.routes, truck.id);
                 if (truck.capacity >= pkgVolume + editTruckRoute.usedCapacity) {
                     removeString(newSolution.unvisitedStops, stopId);
-                    std::string prevStopId = editTruckRoute.route.back();
-                    double prevStopLat;
-                    double prevStopLng;
-                    if (editTruckRoute.route.size() == 1) { // Solo visitó una estacion
-                        prevStopLat = stationHash[prevStopId].lat;
-                        prevStopLng = stationHash[prevStopId].lng;
-                    } else {
-                        prevStopLat = stopsHash[prevStopId].lat;
-                        prevStopLng = stopsHash[prevStopId].lng;
-                    }
-                    double distanceBetweenStops = getDistanceFromLatLonInKm(
-                        prevStopLat,
-                        prevStopLng,
-                        actualStop.lat,
-                        actualStop.lng
-                    );
-
-                    editTruckRoute.usedCapacity += pkgVolume;
-                    editTruckRoute.distanceTraveled += distanceBetweenStops;
-                    editTruckRoute.route.push_back(stopId);
+                    insertStopInTruckRoute(stopsHash, stationHash, actualStop, editTruckRoute);
                     newSolution.evaluationValue = evaluateSolution(newSolution);
-
                     solutions.push_back(newSolution);
                 }
             }
@@ -119,18 +125,56 @@ std::vector<Solution> bfs(
     return solutions;
 }
 
-void searchSolutions(
-    std::unordered_map<std::string, Stop> stopsHash,
-    std::unordered_map<std::string, Station> stationHash,
-    std::unordered_map<std::string, Truck> truckHash
-) {
-    // Estirar el arbol hasta cierto punto
-    // Elegir un nodo "station" como inicial
+void dfs(std::unordered_map<std::string, Truck> truckHash,
+        std::unordered_map<std::string, Station> stationHash,
+        std::unordered_map<std::string, Stop> stopsHash,
+        Solution currSolution, Solution &localMinSolution){
 
+    // Caso base: no quedan paradas sin visitar
+    if (currSolution.unvisitedStops.size() == 0){
+        if (currSolution.evaluationValue < localMinSolution.evaluationValue){
+            localMinSolution = currSolution;
+        }
+        return;
+    }
 
-    // Almacenar todos las hojas del arbol
+    for (const auto& pair : truckHash) {
+        Truck truck = pair.second;
+        // Se intenta visitar todas las paradas que no han sido visitadas
+        std::optional<TruckRoute> truckRoute = getTruckRouteById(currSolution.routes, truck.id);
+        if (truckRoute) {
+            for (const auto& stopId : currSolution.unvisitedStops){
+                Stop stop = stopsHash[stopId];
+                // Copia la solucion recibida por parametro
+                Solution newSolution = currSolution;
+                TruckRoute& editTruckRoute = refTruckRouteById(newSolution.routes, truck.id);
+                insertStopInTruckRoute(stopsHash, stationHash, stop, editTruckRoute);
+                newSolution.evaluationValue = evaluateSolution(newSolution);
+                if (newSolution.evaluationValue >= localMinSolution.evaluationValue) {
+                    continue;
+                }
 
-    // Repartir los nodos dinamicamente
+                removeString(newSolution.unvisitedStops, stopId);
+                dfs(truckHash, stationHash, stopsHash, newSolution, localMinSolution);
+            }
+        } else {
+            for (const auto& stationPair : stationHash){
+                // Copia la solucion recibida por parametro
+                Solution newSolution = currSolution;
+
+                TruckRoute newRoute;
+                newRoute.truckId = truck.id;
+                newRoute.route = {
+                    stationPair.second.id,
+                };
+                newRoute.usedCapacity = 0;
+                newRoute.distanceTraveled = 0;
+
+                newSolution.routes.push_back(newRoute);
+                dfs(truckHash, stationHash, stopsHash, newSolution, localMinSolution);
+            }
+        }
+    }
 }
 
 int main() {
@@ -168,11 +212,22 @@ int main() {
 
         // BFS HASTA NIVEL 
         std::vector<Solution> solutions = bfs(stopsHash, stationHash, truckHash, allStops, maxLevel);
-        for (const auto& sol : solutions) {
-            printSolution(sol);
-        }
+        // for (const auto& sol : solutions) {
+        //     printSolution(sol);
+        // }
 
         // DFS PARALELIZABLE
+        Solution minSolution;
+        double maxDouble = std::numeric_limits<double>::max();
+        minSolution.evaluationValue = maxDouble;
+        Solution solAux = solutions[0];
+        std::cout << "Sol Aux:\n";
+        printSolution(solAux);
+
+        dfs(truckHash, stationHash, stopsHash, solAux, minSolution);
+
+        std::cout << "Min Solution:\n";
+        printSolution(minSolution);
 
         //IMPRESIONES
         // Imprimir los elementos del vector
