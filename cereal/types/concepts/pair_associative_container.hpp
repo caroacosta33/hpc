@@ -1,6 +1,7 @@
-/*! \file string.hpp
-    \brief Support for types found in \<string\>
-    \ingroup STLSupport */
+/*! \file pair_associative_container.hpp
+    \brief Support for the PairAssociativeContainer refinement of the
+    AssociativeContainer concept.
+    \ingroup TypeConcepts */
 /*
   Copyright (c) 2014, Randolph Voorhies, Shane Grant
   All rights reserved.
@@ -27,35 +28,46 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef CEREAL_TYPES_STRING_HPP_
-#define CEREAL_TYPES_STRING_HPP_
+#ifndef CEREAL_CONCEPTS_PAIR_ASSOCIATIVE_CONTAINER_HPP_
+#define CEREAL_CONCEPTS_PAIR_ASSOCIATIVE_CONTAINER_HPP_
 
-#include "cereal/cereal.hpp"
-#include <string>
+#include "../../cereal.hpp"
 
 namespace cereal
 {
-  //! Serialization for basic_string types, if binary data is supported
-  template<class Archive, class CharT, class Traits, class Alloc> inline
-  typename std::enable_if<traits::is_output_serializable<BinaryData<CharT>, Archive>::value, void>::type
-  CEREAL_SAVE_FUNCTION_NAME(Archive & ar, std::basic_string<CharT, Traits, Alloc> const & str)
+  //! Saving for std-like pair associative containers
+  template <class Archive, template <typename...> class Map, typename... Args, typename = typename Map<Args...>::mapped_type> inline
+  void CEREAL_SAVE_FUNCTION_NAME( Archive & ar, Map<Args...> const & map )
   {
-    // Save number of chars + the data
-    ar( make_size_tag( static_cast<size_type>(str.size()) ) );
-    ar( binary_data( str.data(), str.size() * sizeof(CharT) ) );
+    ar( make_size_tag( static_cast<size_type>(map.size()) ) );
+
+    for( const auto & i : map )
+      ar( make_map_item(i.first, i.second) );
   }
 
-  //! Serialization for basic_string types, if binary data is supported
-  template<class Archive, class CharT, class Traits, class Alloc> inline
-  typename std::enable_if<traits::is_input_serializable<BinaryData<CharT>, Archive>::value, void>::type
-  CEREAL_LOAD_FUNCTION_NAME(Archive & ar, std::basic_string<CharT, Traits, Alloc> & str)
+  //! Loading for std-like pair associative containers
+  template <class Archive, template <typename...> class Map, typename... Args, typename = typename Map<Args...>::mapped_type> inline
+  void CEREAL_LOAD_FUNCTION_NAME( Archive & ar, Map<Args...> & map )
   {
     size_type size;
     ar( make_size_tag( size ) );
-    str.resize(static_cast<std::size_t>(size));
-    ar( binary_data( const_cast<CharT *>( str.data() ), static_cast<std::size_t>(size) * sizeof(CharT) ) );
+
+    map.clear();
+
+    auto hint = map.begin();
+    for( size_t i = 0; i < size; ++i )
+    {
+      typename Map<Args...>::key_type key;
+      typename Map<Args...>::mapped_type value;
+
+      ar( make_map_item(key, value) );
+      #ifdef CEREAL_OLDER_GCC
+      hint = map.insert( hint, std::make_pair(std::move(key), std::move(value)) );
+      #else // NOT CEREAL_OLDER_GCC
+      hint = map.emplace_hint( hint, std::move( key ), std::move( value ) );
+      #endif // NOT CEREAL_OLDER_GCC
+    }
   }
 } // namespace cereal
 
-#endif // CEREAL_TYPES_STRING_HPP_
-
+#endif // CEREAL_CONCEPTS_PAIR_ASSOCIATIVE_CONTAINER_HPP_

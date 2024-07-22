@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include "./include/cereal/archives/binary.hpp"
-#include "./include/cereal/types/unordered_map.hpp"
-#include "./include/cereal/types/vector.hpp"
-#include "./include/cereal/types/string.hpp"
+#include "./cereal/archives/binary.hpp"
+#include "./cereal/types/unordered_map.hpp"
+#include "./cereal/types/vector.hpp"
+#include "./cereal/types/string.hpp"
 
 struct TruckRoute {
     std::string truckId;

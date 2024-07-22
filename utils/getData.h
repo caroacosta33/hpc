@@ -9,7 +9,7 @@
 #include "../include/json.hpp"
 using json = nlohmann::json;
 
-void addPackageData(std::unordered_map<std::string, Stop>& stopsHash) {
+void addPackageData(int maxStops, std::unordered_map<std::string, Stop>& stopsHash) {
     // Abrir el archivo .json
     std::ifstream file("almrrc2021-data-training/model_apply_inputs/new_package_data.json");
     //std::ifstream file("test_files2/test2.json");
@@ -32,6 +32,9 @@ void addPackageData(std::unordered_map<std::string, Stop>& stopsHash) {
             json routeJson = it.value();
             for (json::iterator it2 = routeJson.begin(); it2 != routeJson.end(); ++it2) {
                 std::string stopId = it2.key();
+                if (stopsHash.count(stopId) == 0) {
+                    continue;
+                }
                 json packagesJson = it2.value();
                 for (json::iterator it3 = packagesJson.begin(); it3 != packagesJson.end(); ++it3) {
                     Package package;

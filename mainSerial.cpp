@@ -191,6 +191,7 @@ int main() {
         int truckQty = 10; // Numero de camiones
         std::string selectedDate = "2018-08-11";
         int maxLevel = 2; // Nivel hasta el que se expande con BFS
+        int maxStops = 2; // Total 654
 
         // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
         std::unordered_map<std::string, Stop> stopsHash;
@@ -198,13 +199,15 @@ int main() {
         std::set<double> truckCapacities;
 
         getStopsForDateAndTruckCapacities(selectedDate, stopsHash, stationHash, truckCapacities);
-        addPackageData(stopsHash);
+        addPackageData(maxStops, stopsHash);
     
         std::vector<std::string> allStops;
         for(auto pair : stopsHash) {
             allStops.push_back(pair.first);
         }
         std::vector<TruckRoute> solutionRoutes;
+
+        std::cout << "StopsHash size: " << stopsHash.size() << std::endl;
 
         // Crea un hash con truckQty camiones de capacidad aleatoria (entre las capacidades conocidas de los camiones)
         std::unordered_map<std::string, Truck> truckHash;
