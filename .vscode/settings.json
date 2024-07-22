@@ -81,6 +81,16 @@
         "string_view": "cpp",
         "numbers": "cpp",
         "variant": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "queue": "cpp",
+        "bitset": "cpp",
+        "complex": "cpp",
+        "mutex": "cpp",
+        "regex": "cpp",
+        "stack": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "typeindex": "cpp",
+        "unordered_set": "cpp"
     }
 }
