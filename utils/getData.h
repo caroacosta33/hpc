@@ -9,7 +9,7 @@
 #include "../include/json.hpp"
 using json = nlohmann::json;
 
-void addPackageData(int maxStops, std::unordered_map<std::string, Stop>& stopsHash) {
+void addPackageData(std::unordered_map<std::string, Stop>& stopsHash) {
     // Abrir el archivo .json
     std::ifstream file("almrrc2021-data-training/model_apply_inputs/new_package_data.json");
     //std::ifstream file("test_files2/test2.json");
@@ -55,6 +55,7 @@ void addPackageData(int maxStops, std::unordered_map<std::string, Stop>& stopsHa
 }
 
 void getStopsForDateAndTruckCapacities(
+        int maxStops,
         std::string selectedDate, 
         std::unordered_map<std::string, Stop>& stopsHash,
         std::unordered_map<std::string, Station>& stationsHash,
@@ -77,6 +78,7 @@ void getStopsForDateAndTruckCapacities(
     file.close();
 
     try {
+        int stopsQty = 0;
         // Recorrer las claves y valores del JSON
         for (json::iterator it = j.begin(); it != j.end(); ++it) {
             double capacity = it.value().at("executor_capacity_cm3").get<double>();
@@ -92,12 +94,13 @@ void getStopsForDateAndTruckCapacities(
                         station.lat = it2.value().at("lat").get<double>();
                         station.lng = it2.value().at("lng").get<double>();
                         stationsHash[station.id] = station;
-                    } else { // El tipo es "Dropoff"
+                    } else if (stopsQty < maxStops) { // El tipo es "Dropoff"
                         Stop stop;
                         stop.id = it2.key();
                         stop.lat = it2.value().at("lat").get<double>();
                         stop.lng = it2.value().at("lng").get<double>();
                         stopsHash[stop.id] = stop;
+                        stopsQty++;
                     }
                 }
                 

@@ -130,13 +130,19 @@ std::vector<Solution> bfs(
     return solutions;
 }
 
-void dfs(std::unordered_map<std::string, Truck> truckHash,
-        std::unordered_map<std::string, Station> stationHash,
-        std::unordered_map<std::string, Stop> stopsHash,
-        Solution currSolution, double &localMinValue, Solution &localMinSolution){
+void dfs(std::unordered_map<std::string, Truck>& truckHash,
+        std::unordered_map<std::string, Station>& stationHash,
+        std::unordered_map<std::string, Stop>& stopsHash,
+        Solution currSolution, double& localMinValue, Solution& localMinSolution){
+
+    std::cout << "-------------------------------------" << std::endl;
+    std::cout << "INICIO DFS" << std::endl;
+    std::cout << "currSolution:" << currSolution.evaluationValue << std::endl;
+    std::cout << "unvisitedStops:" << currSolution.unvisitedStops.size() << std::endl;
 
     // Caso base: no quedan paradas sin visitar
-    if (currSolution.unvisitedStops.size() == 0){
+    if (currSolution.unvisitedStops.empty()) {
+        std::cout << "Caso base" << std::endl;
         if (currSolution.evaluationValue < localMinSolution.evaluationValue){
             localMinSolution = currSolution;
             localMinValue = currSolution.evaluationValue;
@@ -144,26 +150,36 @@ void dfs(std::unordered_map<std::string, Truck> truckHash,
         return;
     }
 
+    std::cout << "Caso recursivo" << std::endl;
     for (const auto& pair : truckHash) {
-        Truck truck = pair.second;
+        const Truck& truck = pair.second;
+        std::cout << "truckId: " << truck.id << std::endl;
         // Se intenta visitar todas las paradas que no han sido visitadas
         std::optional<TruckRoute> truckRoute = getTruckRouteById(currSolution.routes, truck.id);
         if (truckRoute) {
             for (const auto& stopId : currSolution.unvisitedStops){
-                Stop stop = stopsHash[stopId];
+                std::cout << "stopId: " << stopId << std::endl;
+                const Stop& stop = stopsHash[stopId];
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
                 TruckRoute& editTruckRoute = refTruckRouteById(newSolution.routes, truck.id);
+                double pkgVolume = getVolumeFromStop(stop);
+
+                if (truck.capacity < pkgVolume + editTruckRoute.usedCapacity) continue;
+    
                 insertStopInTruckRoute(stopsHash, stationHash, stop, editTruckRoute);
                 newSolution.evaluationValue = evaluateSolution(newSolution);
                 if (newSolution.evaluationValue >= localMinValue) {
+                    std::cout << "CORTA DFS!" << std::endl;
                     continue;
                 }
 
                 removeString(newSolution.unvisitedStops, stopId);
                 dfs(truckHash, stationHash, stopsHash, newSolution, localMinValue, localMinSolution);
+                std::cout << "TERMINA DFS!" << std::endl;
             }
         } else {
+            std::cout << "Agrega estacion" << std::endl;
             for (const auto& stationPair : stationHash){
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -188,18 +204,18 @@ int main() {
         auto start = std::chrono::system_clock::now();
 
         // PARAMETROS
-        int truckQty = 10; // Numero de camiones
+        int truckQty = 2; // Numero de camiones
         std::string selectedDate = "2018-08-11";
         int maxLevel = 2; // Nivel hasta el que se expande con BFS
-        int maxStops = 2; // Total 654
+        int maxStops = 9; // Total 654
 
         // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
         std::unordered_map<std::string, Stop> stopsHash;
         std::unordered_map<std::string, Station> stationHash;
         std::set<double> truckCapacities;
 
-        getStopsForDateAndTruckCapacities(selectedDate, stopsHash, stationHash, truckCapacities);
-        addPackageData(maxStops, stopsHash);
+        getStopsForDateAndTruckCapacities(maxStops, selectedDate, stopsHash, stationHash, truckCapacities);
+        addPackageData(stopsHash);
     
         std::vector<std::string> allStops;
         for(auto pair : stopsHash) {
@@ -217,19 +233,24 @@ int main() {
             std::string truckId = "TruckId" + std::to_string(i);
             Truck truckToSave;
             truckToSave.id = truckId;
-            truckToSave.capacity = getNthValue(truckCapacities, rnd);
+            // truckToSave.capacity = getNthValue(truckCapacities, rnd);
+            truckToSave.capacity = 400000;
             truckHash[truckId] = truckToSave;
         };
 
         double totalTrucksCapacity = 0;
         for(auto pair : truckHash) {
+            std::cout << "Truck capacity: " << pair.second.capacity << std::endl;
             totalTrucksCapacity += pair.second.capacity;
         }
         double totalPackagesCapacity = 0; 
         for(auto pair : stopsHash) {
+            double pkgVol = getVolumeFromStop(pair.second);
+            std::cout << "Package capacity: " << pkgVol << std::endl;
             totalPackagesCapacity += getVolumeFromStop(pair.second);
         }
 
+        std::cout << "stationsQty: " << stationHash.size() << std::endl;
         std::cout << "totalTrucksCapacity: " << totalTrucksCapacity << std::endl;
         std::cout << "totalPackagesCapacity: " << totalPackagesCapacity << std::endl;
         if (totalTrucksCapacity < totalPackagesCapacity) {
@@ -238,6 +259,7 @@ int main() {
         }
         // BFS HASTA NIVEL 
         std::vector<Solution> solutions = bfs(stopsHash, stationHash, truckHash, allStops, maxLevel);
+        std::cout << "BFS expansion qty: " << solutions.size() << std::endl;
         // for (const auto& sol : solutions) {
         //     printSolution(sol);
         // }
@@ -252,11 +274,12 @@ int main() {
         double localMinValue = maxDouble;
 
         Solution solAux = solutions[0];
-        std::cout << "Sol Aux:\n";
-        printSolution(solAux);
+        // std::cout << "Sol Aux:\n";
+        // printSolution(solAux);
 
         dfs(truckHash, stationHash, stopsHash, solAux, localMinValue, minSolution);
 
+        std::cout << "----------------------------------\n";
         std::cout << "Min Solution:\n";
         printSolution(minSolution);
 
