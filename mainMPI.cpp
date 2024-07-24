@@ -188,8 +188,8 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
 
 int main() {
     double maxDouble = std::numeric_limits<double>::max();
-    double localMinValue;
-    double globalMinValue;
+    double localMinValue = maxDouble;
+    double globalMinValue = maxDouble;
     Solution minSolution;
     try {
         
@@ -292,6 +292,7 @@ int main() {
             while (!partialSolutions.empty()) {
                 MPI_Status status;
                 int completed_task;
+                std::cout << "Esperando tarea completada " << std::endl;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
                 std::cout << "Tarea completada " << std::endl;
 
@@ -370,15 +371,17 @@ int main() {
                 MPI_Request request;
                 
                 int flag, min;
-                //  Envio el minimo local que encontr
+                //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
                     if (i != rank) {
+                        std::cout << "envio minimo a otros esclavos " << std::endl;
                         MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
                     }
                 }
                 // Recibo los minimos que me enviaron los otros procesos
                 for (int i = 0; i < slaveSize; ++i) {
                     if (i != rank) {
+                        std::cout << "recibo minimos de otros esclavos " << std::endl;
                         int flag;
                         MPI_Status status;
                         do {
@@ -396,9 +399,11 @@ int main() {
                 }
                 // MPI_Allreduce(&buffer, &globalMinValue, 1, MPI_INT, MPI_MIN, slavesComm);
                 // Update the localMinValue
+                std::cout << "antes " << std::endl;
                 if (globalMinValue < localMinValue) {
                     localMinValue = globalMinValue;
                 }
+                std::cout << "despues " << std::endl;
                 // FIN DFS PARALELIZABLE
 
                 int completed_task = 1;
