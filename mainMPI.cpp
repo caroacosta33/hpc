@@ -373,14 +373,14 @@ int main() {
                 int flag, min;
                 //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
-                    if (i != rank) {
+                    if (i != slaveRank) {
                         std::cout << "envio minimo a otros esclavos " << std::endl;
                         MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
                     }
                 }
                 // Recibo los minimos que me enviaron los otros procesos
                 for (int i = 0; i < slaveSize; ++i) {
-                    if (i != rank) {
+                    if (i != slaveRank) {
                         std::cout << "recibo minimos de otros esclavos " << std::endl;
                         int flag;
                         MPI_Status status;
@@ -415,11 +415,11 @@ int main() {
 
             // Gather minimum distances and paths from all ranks
             Solution globalMinSolution;
-            int* minValues = new int[size];
+            int* minValues = new int[slaveSize];
             MPI_Allgather(&localMinValue, 1, MPI_INT, minValues, 1, MPI_INT, slavesComm);
 
             // Find rank with global minimum distance
-            int* minElement = std::min_element(minValues, minValues + size);
+            int* minElement = std::min_element(minValues, minValues + slaveSize);
             int minValue = *minElement;
             int globalMinRank = minElement - minValues; 
 
