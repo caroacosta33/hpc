@@ -27,7 +27,7 @@ double evaluateSolution(Solution solution) {
     return totalDistanceTraveled;
 }
 
-// precond: la truckRoute no esta vaci, tiene al menos una esatcion
+// precond: la truckRoute no esta vacia, tiene al menos una estacion
 void insertStopInTruckRoute(
     std::unordered_map<std::string, Stop> stopsHash,
     std::unordered_map<std::string, Station> stationHash,
@@ -233,7 +233,6 @@ int main() {
         double totalPackagesCapacity = 0; 
         for(auto pair : stopsHash) {
             double pkgVol = getVolumeFromStop(pair.second);
-            std::cout << "Package capacity: " << pkgVol << std::endl;
             totalPackagesCapacity += getVolumeFromStop(pair.second);
         }
 
