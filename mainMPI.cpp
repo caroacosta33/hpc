@@ -320,7 +320,6 @@ int main() {
             }
             
             // Recibe la solucion global
-            MPI_Status status;
             MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
             int count;
