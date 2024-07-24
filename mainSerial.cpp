@@ -273,13 +273,14 @@ int main() {
         minSolution.evaluationValue = maxDouble;
         double localMinValue = maxDouble;
 
-        Solution solAux = solutions[0];
+        // Solution solAux = solutions[0];
         // std::cout << "Sol Aux:\n";
         // printSolution(solAux);
-
-        dfs(truckHash, stationHash, stopsHash, solAux, localMinValue, minSolution);
-
+        for(const auto& sol : solutions) {
+            dfs(truckHash, stationHash, stopsHash, sol, localMinValue, minSolution);
+        }
         std::cout << "----------------------------------\n";
+        std::cout << "localMinValue: " << localMinValue << std::endl;
         std::cout << "Min Solution:\n";
         printSolution(minSolution);
 
