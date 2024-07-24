@@ -289,9 +289,9 @@ int main() {
             }
 
             // Distribuir tareas restantes
+            int completed_task;
+            MPI_Status status;
             while (!partialSolutions.empty()) {
-                MPI_Status status;
-                int completed_task;
                 std::cout << "Esperando tarea completada " << std::endl;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
                 std::cout << "Tarea completada " << std::endl;
@@ -305,6 +305,9 @@ int main() {
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
+            std::cout << "Esperando ultima tarea completada " << std::endl;
+            MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            std::cout << "Ultima tarea completada " << std::endl;
 
 
             // Indicar a los procesos que ya no hay más tareas
