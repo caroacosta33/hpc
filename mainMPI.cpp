@@ -377,7 +377,6 @@ int main() {
                 std::cout << "Min Solution:\n";
                 printSolution(minSolution);
 
-                int buffer = localMinValue;
                 MPI_Request request;
                 
                 int flag, min;
