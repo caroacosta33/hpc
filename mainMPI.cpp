@@ -117,13 +117,10 @@ std::vector<Solution> bfs(
     Solution initialSolution;
     initialSolution.unvisitedStops = allStops;
     initialSolution.evaluationValue = 0;
-    std::cout << "Level: 0" << std::endl;
     std::vector<Solution> solutions = bfs_step(stopsHash, stationHash, truckHash, initialSolution);
     for(int level = 1; level <= maxLevel; level++) {
         std::vector<Solution> levelSolutions;
-        std::cout << "Level: " << level << std::endl;
         for(int j = 0; j < solutions.size(); j++) {
-            std::cout << "j: " << j << std::endl;
             std::vector<Solution> partialSolution = bfs_step(stopsHash, stationHash, truckHash, solutions[j]);
             levelSolutions.insert(levelSolutions.end(), partialSolution.begin(), partialSolution.end()); 
         };
@@ -137,14 +134,8 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         std::unordered_map<std::string, Stop>& stopsHash,
         Solution currSolution, double& localMinValue, Solution& localMinSolution){
 
-    std::cout << "-------------------------------------" << std::endl;
-    std::cout << "INICIO DFS" << std::endl;
-    std::cout << "currSolution:" << currSolution.evaluationValue << std::endl;
-    std::cout << "unvisitedStops:" << currSolution.unvisitedStops.size() << std::endl;
-
     // Caso base: no quedan paradas sin visitar
     if (currSolution.unvisitedStops.empty()) {
-        std::cout << "Caso base" << std::endl;
         if (currSolution.evaluationValue < localMinSolution.evaluationValue){
             localMinSolution = currSolution;
             localMinValue = currSolution.evaluationValue;
@@ -152,15 +143,12 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         return;
     }
 
-    std::cout << "Caso recursivo" << std::endl;
     for (const auto& pair : truckHash) {
         const Truck& truck = pair.second;
-        std::cout << "truckId: " << truck.id << std::endl;
         // Se intenta visitar todas las paradas que no han sido visitadas
         std::optional<TruckRoute> truckRoute = getTruckRouteById(currSolution.routes, truck.id);
         if (truckRoute) {
             for (const auto& stopId : currSolution.unvisitedStops){
-                std::cout << "stopId: " << stopId << std::endl;
                 const Stop& stop = stopsHash[stopId];
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -172,16 +160,13 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
                 insertStopInTruckRoute(stopsHash, stationHash, stop, editTruckRoute);
                 newSolution.evaluationValue = evaluateSolution(newSolution);
                 if (newSolution.evaluationValue >= localMinValue) {
-                    std::cout << "CORTA DFS!" << std::endl;
                     continue;
                 }
 
                 removeString(newSolution.unvisitedStops, stopId);
                 dfs(truckHash, stationHash, stopsHash, newSolution, localMinValue, localMinSolution);
-                std::cout << "TERMINA DFS!" << std::endl;
             }
         } else {
-            std::cout << "Agrega estacion" << std::endl;
             for (const auto& stationPair : stationHash){
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -279,6 +264,7 @@ int main() {
 
             // BFS HASTA NIVEL 
             std::vector<Solution> partialSolutions = bfs(stopsHash, stationHash, truckHash, allStops, maxLevel);
+            std::cout << "BFS expansion qty: " << partialSolutions.size() << std::endl;
             // for (const auto& sol : solutions) {
             //     printSolution(sol);
             // }
@@ -296,6 +282,7 @@ int main() {
 
             // Envío inicial de tareas a todos los procesos
             for (int i = 1; i < size; ++i) {
+                std::cout << "Envio de tareas iniciales: " << i << std::endl;
                 std::vector<char> buffer = serialize(partialSolutions.back());
                 partialSolutions.pop_back();
                 MPI_Send(buffer.data(), buffer.size(), MPI_CHAR, i, 0, MPI_COMM_WORLD);
@@ -306,9 +293,11 @@ int main() {
                 MPI_Status status;
                 int completed_task;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                std::cout << "Tarea completada " << std::endl;
 
                 int sender = status.MPI_SOURCE;
                 if (!partialSolutions.empty()) {
+                    std::cout << "Envio nueva tarea " << std::endl;
                     Solution taskToSend = partialSolutions.back();
                     partialSolutions.pop_back();
                     std::vector<char> newBuffer = serialize(taskToSend);
@@ -318,6 +307,7 @@ int main() {
 
 
             // Indicar a los procesos que ya no hay más tareas
+            std::cout << "No hay mas tareas " << std::endl;
             for (int i = 1; i < size; ++i) {
                 Solution noTask;
                 noTask.evaluationValue = -1;
@@ -336,6 +326,8 @@ int main() {
             MPI_Recv(buffer.data(), buffer.size(), MPI_CHAR, status.MPI_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             Solution globalSolution = deserialize<Solution>(buffer);
+            std::cout << "globalSolution " << std::endl;
+            printSolution(globalSolution);
         } else {
             int slaveRank;
             int slaveSize;
@@ -369,8 +361,6 @@ int main() {
                 // DFS PARALELIZABLE
                 minSolution.evaluationValue = maxDouble;
                 localMinValue = maxDouble;
-                std::cout << "Solution:\n";
-                printSolution(solution);
 
                 dfs(trucks, stations, stops, solution, localMinValue, minSolution);
 

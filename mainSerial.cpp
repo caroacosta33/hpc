@@ -115,13 +115,10 @@ std::vector<Solution> bfs(
     Solution initialSolution;
     initialSolution.unvisitedStops = allStops;
     initialSolution.evaluationValue = 0;
-    std::cout << "Level: 0" << std::endl;
     std::vector<Solution> solutions = bfs_step(stopsHash, stationHash, truckHash, initialSolution);
     for(int level = 1; level <= maxLevel; level++) {
         std::vector<Solution> levelSolutions;
-        std::cout << "Level: " << level << std::endl;
         for(int j = 0; j < solutions.size(); j++) {
-            std::cout << "j: " << j << std::endl;
             std::vector<Solution> partialSolution = bfs_step(stopsHash, stationHash, truckHash, solutions[j]);
             levelSolutions.insert(levelSolutions.end(), partialSolution.begin(), partialSolution.end()); 
         };
@@ -210,8 +207,6 @@ int main() {
             allStops.push_back(pair.first);
         }
         std::vector<TruckRoute> solutionRoutes;
-
-        std::cout << "StopsHash size: " << stopsHash.size() << std::endl;
 
         // Crea un hash con truckQty camiones de capacidad aleatoria (entre las capacidades conocidas de los camiones)
         std::unordered_map<std::string, Truck> truckHash;
