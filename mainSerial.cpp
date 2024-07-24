@@ -135,14 +135,8 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         std::unordered_map<std::string, Stop>& stopsHash,
         Solution currSolution, double& localMinValue, Solution& localMinSolution){
 
-    std::cout << "-------------------------------------" << std::endl;
-    std::cout << "INICIO DFS" << std::endl;
-    std::cout << "currSolution:" << currSolution.evaluationValue << std::endl;
-    std::cout << "unvisitedStops:" << currSolution.unvisitedStops.size() << std::endl;
-
     // Caso base: no quedan paradas sin visitar
     if (currSolution.unvisitedStops.empty()) {
-        std::cout << "Caso base" << std::endl;
         if (currSolution.evaluationValue < localMinSolution.evaluationValue){
             localMinSolution = currSolution;
             localMinValue = currSolution.evaluationValue;
@@ -150,15 +144,12 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         return;
     }
 
-    std::cout << "Caso recursivo" << std::endl;
     for (const auto& pair : truckHash) {
         const Truck& truck = pair.second;
-        std::cout << "truckId: " << truck.id << std::endl;
         // Se intenta visitar todas las paradas que no han sido visitadas
         std::optional<TruckRoute> truckRoute = getTruckRouteById(currSolution.routes, truck.id);
         if (truckRoute) {
             for (const auto& stopId : currSolution.unvisitedStops){
-                std::cout << "stopId: " << stopId << std::endl;
                 const Stop& stop = stopsHash[stopId];
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -170,16 +161,13 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
                 insertStopInTruckRoute(stopsHash, stationHash, stop, editTruckRoute);
                 newSolution.evaluationValue = evaluateSolution(newSolution);
                 if (newSolution.evaluationValue >= localMinValue) {
-                    std::cout << "CORTA DFS!" << std::endl;
                     continue;
                 }
 
                 removeString(newSolution.unvisitedStops, stopId);
                 dfs(truckHash, stationHash, stopsHash, newSolution, localMinValue, localMinSolution);
-                std::cout << "TERMINA DFS!" << std::endl;
             }
         } else {
-            std::cout << "Agrega estacion" << std::endl;
             for (const auto& stationPair : stationHash){
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -240,7 +228,6 @@ int main() {
 
         double totalTrucksCapacity = 0;
         for(auto pair : truckHash) {
-            std::cout << "Truck capacity: " << pair.second.capacity << std::endl;
             totalTrucksCapacity += pair.second.capacity;
         }
         double totalPackagesCapacity = 0; 
