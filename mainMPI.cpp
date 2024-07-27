@@ -382,7 +382,6 @@ int main() {
                 double min;
                 //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
-                    std::cout << "Tarea " << rank << " envia localMinValue="<< localMinValue << " a otros esclavos" <<std::endl;
                     if (i != slaveRank) {
                         MPI_Send(&localMinValue, 1, MPI_DOUBLE, i, 0, slavesComm);
                     }
@@ -397,11 +396,9 @@ int main() {
 
                             if (flag) {
                                 MPI_Recv(&min, 1, MPI_DOUBLE, i, MPI_ANY_TAG, slavesComm, &status);
-                                std::cout << "Tarea " << rank << " recibe min="<< min << " de otros esclavos" <<std::endl;
 
                                 if (min < localMinValue){
                                     localMinValue = min;
-                                    std::cout << "Tarea " << rank << " actualiza localMinValue="<< min << std::endl;
                                 }
                             }
                         } while (flag);// Continue receiving until there are no more messages from this process
