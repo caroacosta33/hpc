@@ -298,7 +298,6 @@ int main() {
                     Solution taskToSend = partialSolutions.back();
                     partialSolutions.pop_back();
                     std::vector<char> newBuffer = serialize(taskToSend);
-                    std::cout << "Envia tarea a: " << sender << std::endl;
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
@@ -382,6 +381,7 @@ int main() {
                 int flag, min;
                 //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
+                    std::cout << "Tarea " << rank << " envia localMinValue="<< localMinValue << " a otros esclavos" <<std::endl;
                     if (i != slaveRank) {
                         MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
                     }
@@ -396,9 +396,11 @@ int main() {
 
                             if (flag) {
                                 MPI_Recv(&min, 1, MPI_INT, i, MPI_ANY_TAG, slavesComm, &status);
+                                std::cout << "Tarea " << rank << " recibe min="<< min << " de otros esclavos" <<std::endl;
 
                                 if (min < localMinValue){
                                     localMinValue = min;
+                                    std::cout << "Tarea " << rank << " actualiza localMinValue="<< min << std::endl;
                                 }
                             }
                         } while (flag);// Continue receiving until there are no more messages from this process
@@ -406,9 +408,10 @@ int main() {
                 }
                 // MPI_Allreduce(&buffer, &globalMinValue, 1, MPI_INT, MPI_MIN, slavesComm);
                 // Update the localMinValue
-                if (globalMinValue < localMinValue) {
-                    localMinValue = globalMinValue;
-                }
+                
+                // if (globalMinValue < localMinValue) {
+                //     localMinValue = globalMinValue;
+                // }
                 // FIN DFS PARALELIZABLE
 
                 int completed_task = 1;
