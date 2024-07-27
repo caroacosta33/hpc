@@ -117,13 +117,10 @@ std::vector<Solution> bfs(
     Solution initialSolution;
     initialSolution.unvisitedStops = allStops;
     initialSolution.evaluationValue = 0;
-    std::cout << "Level: 0" << std::endl;
     std::vector<Solution> solutions = bfs_step(stopsHash, stationHash, truckHash, initialSolution);
     for(int level = 1; level <= maxLevel; level++) {
         std::vector<Solution> levelSolutions;
-        std::cout << "Level: " << level << std::endl;
         for(int j = 0; j < solutions.size(); j++) {
-            std::cout << "j: " << j << std::endl;
             std::vector<Solution> partialSolution = bfs_step(stopsHash, stationHash, truckHash, solutions[j]);
             levelSolutions.insert(levelSolutions.end(), partialSolution.begin(), partialSolution.end()); 
         };
@@ -137,14 +134,8 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         std::unordered_map<std::string, Stop>& stopsHash,
         Solution currSolution, double& localMinValue, Solution& localMinSolution){
 
-    std::cout << "-------------------------------------" << std::endl;
-    std::cout << "INICIO DFS" << std::endl;
-    std::cout << "currSolution:" << currSolution.evaluationValue << std::endl;
-    std::cout << "unvisitedStops:" << currSolution.unvisitedStops.size() << std::endl;
-
     // Caso base: no quedan paradas sin visitar
     if (currSolution.unvisitedStops.empty()) {
-        std::cout << "Caso base" << std::endl;
         if (currSolution.evaluationValue < localMinSolution.evaluationValue){
             localMinSolution = currSolution;
             localMinValue = currSolution.evaluationValue;
@@ -152,15 +143,12 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
         return;
     }
 
-    std::cout << "Caso recursivo" << std::endl;
     for (const auto& pair : truckHash) {
         const Truck& truck = pair.second;
-        std::cout << "truckId: " << truck.id << std::endl;
         // Se intenta visitar todas las paradas que no han sido visitadas
         std::optional<TruckRoute> truckRoute = getTruckRouteById(currSolution.routes, truck.id);
         if (truckRoute) {
             for (const auto& stopId : currSolution.unvisitedStops){
-                std::cout << "stopId: " << stopId << std::endl;
                 const Stop& stop = stopsHash[stopId];
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -172,16 +160,13 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
                 insertStopInTruckRoute(stopsHash, stationHash, stop, editTruckRoute);
                 newSolution.evaluationValue = evaluateSolution(newSolution);
                 if (newSolution.evaluationValue >= localMinValue) {
-                    std::cout << "CORTA DFS!" << std::endl;
                     continue;
                 }
 
                 removeString(newSolution.unvisitedStops, stopId);
                 dfs(truckHash, stationHash, stopsHash, newSolution, localMinValue, localMinSolution);
-                std::cout << "TERMINA DFS!" << std::endl;
             }
         } else {
-            std::cout << "Agrega estacion" << std::endl;
             for (const auto& stationPair : stationHash){
                 // Copia la solucion recibida por parametro
                 Solution newSolution = currSolution;
@@ -203,8 +188,8 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
 
 int main() {
     double maxDouble = std::numeric_limits<double>::max();
-    double localMinValue;
-    double globalMinValue;
+    double localMinValue = maxDouble;
+    double globalMinValue = maxDouble;
     Solution minSolution;
     try {
         
@@ -231,7 +216,7 @@ int main() {
             int truckQty = 2; // Numero de camiones
             std::string selectedDate = "2018-08-11";
             int maxLevel = 2; // Nivel hasta el que se expande con BFS
-            int maxStops = 9; // Total 654
+            int maxStops = 10; // Total 654
 
             // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
             std::unordered_map<std::string, Stop> stopsHash;
@@ -279,6 +264,7 @@ int main() {
 
             // BFS HASTA NIVEL 
             std::vector<Solution> partialSolutions = bfs(stopsHash, stationHash, truckHash, allStops, maxLevel);
+            std::cout << "BFS expansion qty: " << partialSolutions.size() << std::endl;
             // for (const auto& sol : solutions) {
             //     printSolution(sol);
             // }
@@ -302,9 +288,9 @@ int main() {
             }
 
             // Distribuir tareas restantes
+            int completed_task;
+            MPI_Status status;
             while (!partialSolutions.empty()) {
-                MPI_Status status;
-                int completed_task;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
                 int sender = status.MPI_SOURCE;
@@ -315,7 +301,9 @@ int main() {
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
-
+            for (int i = 1; i < size; ++i) {
+                MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            }
 
             // Indicar a los procesos que ya no hay más tareas
             for (int i = 1; i < size; ++i) {
@@ -326,7 +314,6 @@ int main() {
             }
             
             // Recibe la solucion global
-            MPI_Status status;
             MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
             int count;
@@ -336,6 +323,19 @@ int main() {
             MPI_Recv(buffer.data(), buffer.size(), MPI_CHAR, status.MPI_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             Solution globalSolution = deserialize<Solution>(buffer);
+            
+            auto end = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsedSeconds = end-start;
+
+            std::cout << "globalSolution " << std::endl;
+            printSolution(globalSolution);
+
+            std::time_t startTime = std::chrono::system_clock::to_time_t(start);
+            std::time_t endTime = std::chrono::system_clock::to_time_t(end);
+
+            std::cout << "Started computation at " << std::ctime(&startTime) << std::endl;
+            std::cout << "Finished computation at " << std::ctime(&endTime) << std::endl;
+            std::cout << "Elapsed time: " << elapsedSeconds.count() << "s" << std::endl;
         } else {
             int slaveRank;
             int slaveSize;
@@ -369,27 +369,21 @@ int main() {
                 // DFS PARALELIZABLE
                 minSolution.evaluationValue = maxDouble;
                 localMinValue = maxDouble;
-                std::cout << "Solution:\n";
-                printSolution(solution);
 
                 dfs(trucks, stations, stops, solution, localMinValue, minSolution);
 
-                std::cout << "Min Solution:\n";
-                printSolution(minSolution);
-
-                int buffer = localMinValue;
                 MPI_Request request;
                 
                 int flag, min;
-                //  Envio el minimo local que encontr
+                //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
-                    if (i != rank) {
+                    if (i != slaveRank) {
                         MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
                     }
                 }
                 // Recibo los minimos que me enviaron los otros procesos
                 for (int i = 0; i < slaveSize; ++i) {
-                    if (i != rank) {
+                    if (i != slaveRank) {
                         int flag;
                         MPI_Status status;
                         do {
@@ -421,11 +415,11 @@ int main() {
 
             // Gather minimum distances and paths from all ranks
             Solution globalMinSolution;
-            int* minValues = new int[size];
+            int* minValues = new int[slaveSize];
             MPI_Allgather(&localMinValue, 1, MPI_INT, minValues, 1, MPI_INT, slavesComm);
 
             // Find rank with global minimum distance
-            int* minElement = std::min_element(minValues, minValues + size);
+            int* minElement = std::min_element(minValues, minValues + slaveSize);
             int minValue = *minElement;
             int globalMinRank = minElement - minValues; 
 

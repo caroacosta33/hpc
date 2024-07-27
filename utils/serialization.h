@@ -4,10 +4,10 @@
 #include "../types.h"
 #include <iostream>
 
-#include "./include/cereal/archives/binary.hpp"
-#include "./include/cereal/types/unordered_map.hpp"
-#include "./include/cereal/types/vector.hpp"
-#include "./include/cereal/types/string.hpp"
+#include "../cereal/archives/binary.hpp"
+#include "../cereal/types/unordered_map.hpp"
+#include "../cereal/types/vector.hpp"
+#include "../cereal/types/string.hpp"
 
 template<typename T>
 std::vector<char> serialize(const T& data) {

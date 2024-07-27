@@ -27,7 +27,7 @@ double evaluateSolution(Solution solution) {
     return totalDistanceTraveled;
 }
 
-// precond: la truckRoute no esta vaci, tiene al menos una esatcion
+// precond: la truckRoute no esta vacia, tiene al menos una estacion
 void insertStopInTruckRoute(
     std::unordered_map<std::string, Stop> stopsHash,
     std::unordered_map<std::string, Station> stationHash,
@@ -115,13 +115,10 @@ std::vector<Solution> bfs(
     Solution initialSolution;
     initialSolution.unvisitedStops = allStops;
     initialSolution.evaluationValue = 0;
-    std::cout << "Level: 0" << std::endl;
     std::vector<Solution> solutions = bfs_step(stopsHash, stationHash, truckHash, initialSolution);
     for(int level = 1; level <= maxLevel; level++) {
         std::vector<Solution> levelSolutions;
-        std::cout << "Level: " << level << std::endl;
         for(int j = 0; j < solutions.size(); j++) {
-            std::cout << "j: " << j << std::endl;
             std::vector<Solution> partialSolution = bfs_step(stopsHash, stationHash, truckHash, solutions[j]);
             levelSolutions.insert(levelSolutions.end(), partialSolution.begin(), partialSolution.end()); 
         };
@@ -211,8 +208,6 @@ int main() {
         }
         std::vector<TruckRoute> solutionRoutes;
 
-        std::cout << "StopsHash size: " << stopsHash.size() << std::endl;
-
         // Crea un hash con truckQty camiones de capacidad aleatoria (entre las capacidades conocidas de los camiones)
         std::unordered_map<std::string, Truck> truckHash;
         int truckCapacityQty = truckCapacities.size();
@@ -233,7 +228,6 @@ int main() {
         double totalPackagesCapacity = 0; 
         for(auto pair : stopsHash) {
             double pkgVol = getVolumeFromStop(pair.second);
-            std::cout << "Package capacity: " << pkgVol << std::endl;
             totalPackagesCapacity += getVolumeFromStop(pair.second);
         }
 
