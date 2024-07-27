@@ -378,12 +378,13 @@ int main() {
 
                 MPI_Request request;
                 
-                int flag, min;
+                int flag;
+                double min;
                 //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
                     std::cout << "Tarea " << rank << " envia localMinValue="<< localMinValue << " a otros esclavos" <<std::endl;
                     if (i != slaveRank) {
-                        MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
+                        MPI_Send(&localMinValue, 1, MPI_DOUBLE, i, 0, slavesComm);
                     }
                 }
                 // Recibo los minimos que me enviaron los otros procesos
@@ -395,7 +396,7 @@ int main() {
                             MPI_Iprobe(i, 0, slavesComm, &flag, &status);
 
                             if (flag) {
-                                MPI_Recv(&min, 1, MPI_INT, i, MPI_ANY_TAG, slavesComm, &status);
+                                MPI_Recv(&min, 1, MPI_DOUBLE, i, MPI_ANY_TAG, slavesComm, &status);
                                 std::cout << "Tarea " << rank << " recibe min="<< min << " de otros esclavos" <<std::endl;
 
                                 if (min < localMinValue){
@@ -423,12 +424,12 @@ int main() {
 
             // Gather minimum distances and paths from all ranks
             Solution globalMinSolution;
-            int* minValues = new int[slaveSize];
-            MPI_Allgather(&localMinValue, 1, MPI_INT, minValues, 1, MPI_INT, slavesComm);
+            double* minValues = new double[slaveSize];
+            MPI_Allgather(&localMinValue, 1, MPI_DOUBLE, minValues, 1, MPI_DOUBLE, slavesComm);
 
             // Find rank with global minimum distance
-            int* minElement = std::min_element(minValues, minValues + slaveSize);
-            int minValue = *minElement;
+            double* minElement = std::min_element(minValues, minValues + slaveSize);
+            double minValue = *minElement;
             int globalMinRank = minElement - minValues; 
 
             // Receive global minimum path from rank with global minimum distance
