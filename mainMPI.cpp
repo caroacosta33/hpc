@@ -298,6 +298,7 @@ int main() {
                     Solution taskToSend = partialSolutions.back();
                     partialSolutions.pop_back();
                     std::vector<char> newBuffer = serialize(taskToSend);
+                    std::cout << "Envia tarea a: " << sender << std::endl;
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
@@ -370,7 +371,11 @@ int main() {
                 minSolution.evaluationValue = maxDouble;
                 localMinValue = maxDouble;
 
+                auto dfsStart = std::chrono::system_clock::now();
                 dfs(trucks, stations, stops, solution, localMinValue, minSolution);
+                auto dfsEnd = std::chrono::system_clock::now();
+                std::chrono::duration<double> dfsTime = dfsEnd-dfsStart;
+                std::cout << "dfsTime: " << dfsTime.count() << "s" << std::endl;
 
                 MPI_Request request;
                 
