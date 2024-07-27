@@ -305,10 +305,11 @@ int main() {
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
-            std::cout << "Esperando ultima tarea completada " << std::endl;
-            MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-            std::cout << "Ultima tarea completada " << std::endl;
-
+            for (int i = 1; i < size; ++i) {
+                std::cout << "Esperando ultima tarea completada " << i << std::endl;
+                MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                std::cout << "Ultima tarea completada " << i << std::endl;
+            }
 
             // Indicar a los procesos que ya no hay más tareas
             std::cout << "No hay mas tareas " << std::endl;
