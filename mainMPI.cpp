@@ -282,7 +282,6 @@ int main() {
 
             // Envío inicial de tareas a todos los procesos
             for (int i = 1; i < size; ++i) {
-                std::cout << "Envio de tareas iniciales: " << i << std::endl;
                 std::vector<char> buffer = serialize(partialSolutions.back());
                 partialSolutions.pop_back();
                 MPI_Send(buffer.data(), buffer.size(), MPI_CHAR, i, 0, MPI_COMM_WORLD);
@@ -292,13 +291,10 @@ int main() {
             int completed_task;
             MPI_Status status;
             while (!partialSolutions.empty()) {
-                std::cout << "Esperando tarea completada " << std::endl;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                std::cout << "Tarea completada " << std::endl;
 
                 int sender = status.MPI_SOURCE;
                 if (!partialSolutions.empty()) {
-                    std::cout << "Envio nueva tarea " << std::endl;
                     Solution taskToSend = partialSolutions.back();
                     partialSolutions.pop_back();
                     std::vector<char> newBuffer = serialize(taskToSend);
@@ -306,13 +302,10 @@ int main() {
                 }
             }
             for (int i = 1; i < size; ++i) {
-                std::cout << "Esperando ultima tarea completada " << i << std::endl;
                 MPI_Recv(&completed_task, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                std::cout << "Ultima tarea completada " << i << std::endl;
             }
 
             // Indicar a los procesos que ya no hay más tareas
-            std::cout << "No hay mas tareas " << std::endl;
             for (int i = 1; i < size; ++i) {
                 Solution noTask;
                 noTask.evaluationValue = -1;
@@ -330,8 +323,19 @@ int main() {
             MPI_Recv(buffer.data(), buffer.size(), MPI_CHAR, status.MPI_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             Solution globalSolution = deserialize<Solution>(buffer);
+            
+            auto end = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsedSeconds = end-start;
+
             std::cout << "globalSolution " << std::endl;
             printSolution(globalSolution);
+
+            std::time_t startTime = std::chrono::system_clock::to_time_t(start);
+            std::time_t endTime = std::chrono::system_clock::to_time_t(end);
+
+            std::cout << "Started computation at " << std::ctime(&startTime) << std::endl;
+            std::cout << "Finished computation at " << std::ctime(&endTime) << std::endl;
+            std::cout << "Elapsed time: " << elapsedSeconds.count() << "s" << std::endl;
         } else {
             int slaveRank;
             int slaveSize;
