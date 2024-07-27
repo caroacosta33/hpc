@@ -192,7 +192,7 @@ int main() {
         int truckQty = 2; // Numero de camiones
         std::string selectedDate = "2018-08-11";
         int maxLevel = 2; // Nivel hasta el que se expande con BFS
-        int maxStops = 10; // Total 654
+        int maxStops = 11; // Total 654
 
         // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
         std::unordered_map<std::string, Stop> stopsHash;
@@ -217,7 +217,7 @@ int main() {
             Truck truckToSave;
             truckToSave.id = truckId;
             // truckToSave.capacity = getNthValue(truckCapacities, rnd);
-            truckToSave.capacity = 400000;
+            truckToSave.capacity = 410000;
             truckHash[truckId] = truckToSave;
         };
 
