@@ -189,7 +189,7 @@ int main() {
         auto start = std::chrono::system_clock::now();
 
         // PARAMETROS
-        int truckQty = 3; // Numero de camiones
+        int truckQty = 2; // Numero de camiones
         std::string selectedDate = "2018-08-11";
         int maxLevel = 2; // Nivel hasta el que se expande con BFS
         int maxStops = 11; // Total 654
