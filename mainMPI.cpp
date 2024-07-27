@@ -372,23 +372,18 @@ int main() {
 
                 dfs(trucks, stations, stops, solution, localMinValue, minSolution);
 
-                std::cout << "Min Solution:\n";
-                printSolution(minSolution);
-
                 MPI_Request request;
                 
                 int flag, min;
                 //  Envio el minimo local que encontre
                 for (int i = 0; i < slaveSize; ++i) {
                     if (i != slaveRank) {
-                        std::cout << "envio minimo a otros esclavos " << std::endl;
                         MPI_Send(&localMinValue, 1, MPI_INT, i, 0, slavesComm);
                     }
                 }
                 // Recibo los minimos que me enviaron los otros procesos
                 for (int i = 0; i < slaveSize; ++i) {
                     if (i != slaveRank) {
-                        std::cout << "recibo minimos de otros esclavos " << std::endl;
                         int flag;
                         MPI_Status status;
                         do {
@@ -406,11 +401,9 @@ int main() {
                 }
                 // MPI_Allreduce(&buffer, &globalMinValue, 1, MPI_INT, MPI_MIN, slavesComm);
                 // Update the localMinValue
-                std::cout << "antes " << std::endl;
                 if (globalMinValue < localMinValue) {
                     localMinValue = globalMinValue;
                 }
-                std::cout << "despues " << std::endl;
                 // FIN DFS PARALELIZABLE
 
                 int completed_task = 1;
