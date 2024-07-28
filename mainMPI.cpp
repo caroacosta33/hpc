@@ -186,6 +186,18 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
     }
 }
 
+std::vector<Solution> getPartialSolutionsToSend(std::vector<Solution>& partialSolutions, int taskSize) {
+    int numToTake = std::min(static_cast<int>(partialSolutions.size()), taskSize);
+
+    std::vector<Solution> selectedSolutions;
+    for (int i = 0; i < numToTake; ++i) {
+        Solution taskToSend = partialSolutions.back();
+        selectedSolutions.push_back(taskToSend);
+        partialSolutions.pop_back();
+    }
+    return selectedSolutions;
+}
+
 int main() {
     double maxDouble = std::numeric_limits<double>::max();
     double localMinValue = maxDouble;
@@ -217,6 +229,7 @@ int main() {
             std::string selectedDate = "2018-08-11";
             int maxLevel = 2; // Nivel hasta el que se expande con BFS
             int maxStops = 11; // Total 654
+            int taskSize = 10; // Cantidad de subarboles que se envian para expandir
 
             // INICIALIZACION DE VARIABLES Y EXTRACCION DE DATOS
             std::unordered_map<std::string, Stop> stopsHash;
@@ -282,8 +295,12 @@ int main() {
 
             // Envío inicial de tareas a todos los procesos
             for (int i = 1; i < size; ++i) {
-                std::vector<char> buffer = serialize(partialSolutions.back());
-                partialSolutions.pop_back();
+                std::vector<Solution> solToSend = getPartialSolutionsToSend(partialSolutions, taskSize);
+                std::cout << "solToSend " << std::endl;
+                for (const auto& sol : solToSend) {
+                    printSolution(sol);
+                }
+                std::vector<char> buffer = serialize(solToSend);
                 MPI_Send(buffer.data(), buffer.size(), MPI_CHAR, i, 0, MPI_COMM_WORLD);
             }
 
@@ -295,9 +312,8 @@ int main() {
 
                 int sender = status.MPI_SOURCE;
                 if (!partialSolutions.empty()) {
-                    Solution taskToSend = partialSolutions.back();
-                    partialSolutions.pop_back();
-                    std::vector<char> newBuffer = serialize(taskToSend);
+                    std::vector<Solution> solToSend = getPartialSolutionsToSend(partialSolutions, taskSize);
+                    std::vector<char> newBuffer = serialize(solToSend);
                     MPI_Send(newBuffer.data(), newBuffer.size(), MPI_CHAR, sender, 0, MPI_COMM_WORLD);
                 }
             }
@@ -307,9 +323,8 @@ int main() {
 
             // Indicar a los procesos que ya no hay más tareas
             for (int i = 1; i < size; ++i) {
-                Solution noTask;
-                noTask.evaluationValue = -1;
-                std::vector<char> buffer = serialize(noTask);
+                std::vector<Solution> noTasks;
+                std::vector<char> buffer = serialize(noTasks);
                 MPI_Send(buffer.data(), buffer.size(), MPI_CHAR, i, 0, MPI_COMM_WORLD);
             }
             
@@ -362,20 +377,27 @@ int main() {
                 std::vector<char> buffer(count);
                 MPI_Recv(buffer.data(), buffer.size(), MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-                Solution solution = deserialize<Solution>(buffer);
-
-                if (solution.evaluationValue == -1) break; // No más tareas
+                std::vector<Solution> solutions = deserialize<std::vector<Solution>>(buffer);
+                std::cout << "solutionsReceived " << std::endl;
+                for (const auto& sol : solutions) {
+                    printSolution(sol);
+                }
+                if (solutions.size() == 0) break; // No más tareas
 
                 // DFS PARALELIZABLE
                 minSolution.evaluationValue = maxDouble;
                 localMinValue = maxDouble;
 
-                auto dfsStart = std::chrono::system_clock::now();
-                dfs(trucks, stations, stops, solution, localMinValue, minSolution);
-                auto dfsEnd = std::chrono::system_clock::now();
-                std::chrono::duration<double> dfsTime = dfsEnd-dfsStart;
-                std::cout << "dfsTime: " << dfsTime.count() << "s" << std::endl;
-
+                while (!solutions.empty()) {
+                    Solution solution = solutions.back();
+                    solutions.pop_back();
+                    auto dfsStart = std::chrono::system_clock::now();
+                    dfs(trucks, stations, stops, solution, localMinValue, minSolution);
+                    auto dfsEnd = std::chrono::system_clock::now();
+                    std::chrono::duration<double> dfsTime = dfsEnd-dfsStart;
+                    std::cout << "dfsTime: " << dfsTime.count() << "s" << std::endl;
+                }
+               
                 MPI_Request request;
                 
                 int flag;
