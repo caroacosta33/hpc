@@ -389,7 +389,7 @@ int main() {
                     dfs(trucks, stations, stops, solution, localMinValue, minSolution);
                     auto dfsEnd = std::chrono::system_clock::now();
                     std::chrono::duration<double> dfsTime = dfsEnd-dfsStart;
-                    std::cout << "dfsTime: " << dfsTime.count() << "s" << std::endl;
+                    std::cout << "dfsTime: " << dfsTime.count() << "s" << " (" << rank << ")" << std::endl;
                 }
                
                 MPI_Request request;
