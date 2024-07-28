@@ -390,42 +390,36 @@ int main() {
                     auto dfsEnd = std::chrono::system_clock::now();
                     std::chrono::duration<double> dfsTime = dfsEnd-dfsStart;
                     std::cout << "dfsTime: " << dfsTime.count() << "s" << " (" << rank << ")" << std::endl;
-                }
-               
-                MPI_Request request;
                 
-                int flag;
-                double min;
-                //  Envio el minimo local que encontre
-                for (int i = 0; i < slaveSize; ++i) {
-                    if (i != slaveRank) {
-                        MPI_Send(&localMinValue, 1, MPI_DOUBLE, i, 0, slavesComm);
+                    MPI_Request request;
+                    
+                    int flag;
+                    double min;
+                    //  Envio el minimo local que encontre
+                    for (int i = 0; i < slaveSize; ++i) {
+                        if (i != slaveRank) {
+                            MPI_Send(&localMinValue, 1, MPI_DOUBLE, i, 0, slavesComm);
+                        }
                     }
-                }
-                // Recibo los minimos que me enviaron los otros procesos
-                for (int i = 0; i < slaveSize; ++i) {
-                    if (i != slaveRank) {
-                        int flag;
-                        MPI_Status status;
-                        do {
-                            MPI_Iprobe(i, 0, slavesComm, &flag, &status);
+                    // Recibo los minimos que me enviaron los otros procesos
+                    for (int i = 0; i < slaveSize; ++i) {
+                        if (i != slaveRank) {
+                            int flag;
+                            MPI_Status status;
+                            do {
+                                MPI_Iprobe(i, 0, slavesComm, &flag, &status);
 
-                            if (flag) {
-                                MPI_Recv(&min, 1, MPI_DOUBLE, i, MPI_ANY_TAG, slavesComm, &status);
+                                if (flag) {
+                                    MPI_Recv(&min, 1, MPI_DOUBLE, i, MPI_ANY_TAG, slavesComm, &status);
 
-                                if (min < localMinValue){
-                                    localMinValue = min;
+                                    if (min < localMinValue){
+                                        localMinValue = min;
+                                    }
                                 }
-                            }
-                        } while (flag);// Continue receiving until there are no more messages from this process
+                            } while (flag);// Continue receiving until there are no more messages from this process
+                        }
                     }
                 }
-                // MPI_Allreduce(&buffer, &globalMinValue, 1, MPI_INT, MPI_MIN, slavesComm);
-                // Update the localMinValue
-                
-                // if (globalMinValue < localMinValue) {
-                //     localMinValue = globalMinValue;
-                // }
                 // FIN DFS PARALELIZABLE
 
                 int completed_task = 1;
