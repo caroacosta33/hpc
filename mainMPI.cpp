@@ -188,7 +188,6 @@ void dfs(std::unordered_map<std::string, Truck>& truckHash,
 
 std::vector<Solution> getPartialSolutionsToSend(std::vector<Solution>& partialSolutions, int taskSize) {
     int numToTake = std::min(static_cast<int>(partialSolutions.size()), taskSize);
-    std::cout << "numToTake: " << numToTake << std::endl;
 
     std::vector<Solution> selectedSolutions;
     for (int i = 0; i < numToTake; ++i) {
@@ -295,14 +294,8 @@ int main() {
             broadcast_data(serializedTrucks, 0, rank);
 
             // Envío inicial de tareas a todos los procesos
-            std::cout << "size: " << size << std::endl;
             for (int i = 1; i < size; ++i) {
-                std::cout << "i: " << i << std::endl;
                 std::vector<Solution> solToSend = getPartialSolutionsToSend(partialSolutions, taskSize);
-                std::cout << "solToSend " << std::endl;
-                for (const auto& sol : solToSend) {
-                    printSolution(sol);
-                }
                 std::vector<char> buffer = serialize(solToSend);
                 MPI_Send(buffer.data(), buffer.size(), MPI_CHAR, i, 0, MPI_COMM_WORLD);
             }
@@ -381,10 +374,8 @@ int main() {
                 MPI_Recv(buffer.data(), buffer.size(), MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
                 std::vector<Solution> solutions = deserialize<std::vector<Solution>>(buffer);
-                std::cout << "solutionsReceived " << std::endl;
-                for (const auto& sol : solutions) {
-                    printSolution(sol);
-                }
+                std::cout << "solutionsReceived size: " << solutions.size() << std::endl;
+
                 if (solutions.size() == 0) break; // No más tareas
 
                 // DFS PARALELIZABLE
