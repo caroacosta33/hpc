@@ -10,16 +10,15 @@ Autores:
 - Mateo Gargano (mateo.gargano@fing.edu.uy)
 
 ## Instrucciones de ejecución
-1- Descoprimir el archivo almrrc2021-data.zip, esto debe generar 2 carpetas llamadas almrrc2021-data-evaluation y almrrc2021-data-training que contienen datos obtenidos del Amazon Last Mile Routing Research Challenge.
+1- Compilar el archivo que se desea ejecutar
+ - El mainSerial.cpp contiene una solución serial del problema. En nuestro caso lo compilamos usando `gcc -x c++ -o mainSerial mainSerial.cpp -lstdc++ -lm`.
 
-2- Compilar el archivo que se desea ejecutar y ejecutarlo: 
- - El mainSerial.cpp contiene una solución serial del problema.
+ - El mainMPI.cpp contiene la solución paralela al problema usando MPI. En nuestro caso lo compilamos usando `mpicc mainMPI.cpp -o mainMPI -lstdc++ -lm`.
+ 
+2 - Correr el ejecutable generado
 
- En nuestro caso lo compilamos usnado `gcc -x c++ -o mainSerial mainSerial.cpp -lstdc++ -lm`
- y ejecutamos con `./mainSerial`
- - El mainMPI.cpp contiene la solución paralela al problema usando MPI.
+El código serial lo ejecutamos con `./mainSerial`.
 
- En nuestro caso lo compilamos usnado `mpicc mainMPI.cpp -o mainMPI -lstdc++ -lm`
- y ejecutamos con `mpirun -np <N> -hosts <N hosts> ./mainMPI`.
+En nuestro caso el codigo paralelo loejecutamos con `mpirun -np <N> -hosts <N hosts> ./mainMPI`.
 
- Para especificar los <N hosts> se puede hacer con los nombres de las maquinas separados por coma (ejemplo: `mpirun -np 2 -hosts pcunix40,pcunix42 ./mainMPI`) o se puede definir los hosts dentro de un archivo (ejemplo: `mpirun -np 2 -hostfile mmis_hosts ./mainMPI`)
+Para especificar los hosts se puede hacer con los nombres de las maquinas separados por coma (ejemplo: `mpirun -np 2 -hosts pcunix40,pcunix42 ./mainMPI`) o se puede definir los hosts dentro de un archivo (ejemplo: `mpirun -np 2 -hostfile mmis_hosts ./mainMPI`)
